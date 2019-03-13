@@ -70,9 +70,9 @@ int main() {
     });
 
     this.editor.getSession().getSelection().on("changeCursor", () => {
-      let cursor = this.editor.getSession().getSelection().getCursor();
-      console.log('cursor moves: ' + JSON.stringify(cursor));
-      this.collaboration.cursorMove(JSON.stringify(cursor));
+      let cursor = this.editor.getSession().getSelection().getCursor();//获得当前光标位置
+      console.log('cursor moves: ' + JSON.stringify(cursor));//发射为string
+      this.collaboration.cursorMove(JSON.stringify(cursor));//发给collaborationservice
     });
 
     this.collaboration.restoreBuffer();
