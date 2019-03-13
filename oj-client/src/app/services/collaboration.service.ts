@@ -7,7 +7,7 @@ declare var ace: any;
 @Injectable()
 export class CollaborationService {
   collaborationSocket: any;
-  clientsInfo: Object = {};
+  clientsInfo: Object = {};//本地维护clientinfo map
   clientNum: number = 0;
 
   constructor() { }
@@ -28,13 +28,13 @@ export class CollaborationService {
         cursor = JSON.parse(cursor);            //收到的cursor parse一下
         let x = cursor['row'];
         let y = cursor['column'];
-        let changeClinetId = cursor['socketId'];
-        console.log(x + ' ' + y + ' ' + changeClinetId);
+        let changeClinetId = cursor['socketId']; //谁的clientId
+        console.log(x + ' ' + y + ' ' + changeClinetId); //在本地更改光标
 
-        if(changeClinetId in this.clientsInfo) {
-          session.removeMarker(this.clientsInfo[changeClinetId]['marker']);
+        if(changeClinetId in this.clientsInfo) {//删掉旧的光标，更新新的光标，每个用户有自己的颜色，本地维护clientinfo map
+          session.removeMarker(this.clientsInfo[changeClinetId]['marker']); //这个人信息是否保存在本地？ 短的细的marker作为光标
         } else {
-          this.clientsInfo[changeClinetId] = {};
+          this.clientsInfo[changeClinetId] = {}; //clientsInfo map，指定一个颜色，动态改变css
           let css = document.createElement("style");
           css.type = "text/css";
           css.innerHTML = ".editor_cursor_" + changeClinetId
