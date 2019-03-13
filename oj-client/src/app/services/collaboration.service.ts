@@ -22,10 +22,10 @@ export class CollaborationService {
         editor.getSession().getDocument().applyDeltas([delta]);
       });
 
-      this.collaborationSocket.on("cursorMove", (cursor) => {
+      this.collaborationSocket.on("cursorMove", (cursor) => { //绑定在cursorMove
         console.log("cursor move: " + cursor);
-        let session = editor.getSession();
-        cursor = JSON.parse(cursor);
+        let session = editor.getSession(); //需要使用session里面的api
+        cursor = JSON.parse(cursor);            //收到的cursor parse一下
         let x = cursor['row'];
         let y = cursor['column'];
         let changeClinetId = cursor['socketId'];
@@ -58,7 +58,7 @@ export class CollaborationService {
     this.collaborationSocket.emit("change", delta);
   }
 
-  cursorMove(cursor: string): void {
+  cursorMove(cursor: string): void { //server绑定发送给server
     this.collaborationSocket.emit("cursorMove", cursor);
   }
 
