@@ -45,19 +45,21 @@ def load_image():
 
 def build_and_run(code, lang):
     result = {'build': None, 'run':None, 'error': None}
-
+ #动态生成文件名
     source_file_parent_dir_name = uuid.uuid4()
     source_file_host_dir = "%s%s" % (TEMP_BUILD_DIR, source_file_parent_dir_name)
     source_file_guest_dir = "/test/%s" % (source_file_parent_dir_name)
     make_dir(source_file_host_dir)
-
+#用户代码code写进去
     with open('%s/%s' % (source_file_host_dir, SOURCE_FILE_NAMES[lang]), 'w') as source_file:
         source_file.write(code)
-
+#重点： docker container，build的话需要编译所以要传入命令，java code调用javac
     try:
         client.containers.run(
             image=IMAGE_NAME,
+            #build的话需要编译所以要传入命令，java code调用javac，需要一个map，传入language
             command="%s %s" % (BUILD_COMMANDS[lang], SOURCE_FILE_NAMES[lang]),
+            #把ubunto的tmp文件对应到docker里面
             volumes={source_file_host_dir: {'bind': source_file_guest_dir, 'mode': 'rw'}},
             working_dir=source_file_guest_dir)
         print "Source built."
@@ -65,12 +67,13 @@ def build_and_run(code, lang):
     except ContainerError as e:
         print "Build failed."
         result['build'] = e.stderr
+        #没成功就removefolder
         shutil.rmtree(source_file_host_dir)
         return result
 
     try:
         log = client.containers.run(
-            image=IMAGE_NAME,
+            image=IMAGE_NAME, #函数里面调用参数
             command="%s %s" % (EXECUTE_COMMANDS[lang], BINARY_NAMES[lang]),
             volumes={source_file_host_dir: {'bind': source_file_guest_dir, 'mode': 'rw'}},
             working_dir=source_file_guest_dir)
